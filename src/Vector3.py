@@ -19,6 +19,13 @@ class Vector3:
         """Gives you the dot product of this and another vector."""
         return self.x * other.x + self.y * other.y + self.z * other.z
 
+    def cross(self, other):
+        return Vector3(
+            self.y * other.z - self.z * other.y,
+            -(self.x * other.z - self.z * other.x),
+            self.x * other.y - self.y * other.x
+        )
+
     def unit(self):
         """Gives a version of this vector where the length is 1."""
         return self / self.length()

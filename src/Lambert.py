@@ -7,8 +7,9 @@ import random
 class Lambert(Material):
     """Lambert material hell yeah."""
 
-    def __init__(self, attenuation):
-        self.attenuation = attenuation
+    def __init__(self, texture, emit = 0.0):
+        self.texture = texture
+        self.emit = emit
 
     def randomInSphere(self):
         """Gives a random point within a unit sphere. TODO: shitty method"""
@@ -21,6 +22,9 @@ class Lambert(Material):
         See Material.
         basically just bounces some rays around randomly looking for more colour, and modulating.
         """
-        target = strike.point() + strike.normal + self.randomInSphere()
-        scattered = Ray(strike.point(), target)
-        return Bounce(self.attenuation, scattered)
+        if (random.random() > self.emit):
+            target = strike.point() + strike.normal + self.randomInSphere()
+            scattered = Ray(strike.point(), target)
+            return Bounce(self.texture.value(0, 0, strike.point()), scattered)
+        else:
+            return Bounce(self.texture.value(0, 0, strike.point()))
