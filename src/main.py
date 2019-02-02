@@ -4,34 +4,47 @@ from Sphere import *
 from Strike import *
 from Roster import *
 from Eye import *
+from Lambert import *
+from Metal import *
 from Picture import *
 import math
 import random
 
-min = 0
-max = 1000
+min = 0.001
+max = 10000000
+bounceDepth = 50
 
 
-def colour(ray, roster):
+
+
+def colour(ray, roster, depth = 0):
     strike = roster.hit(ray, min, max)
     if (strike):
-        return (strike.normal + 1) / 2
+        bounce = strike.medium.material.scatter(strike)
+        if (depth >= bounceDepth or not bounce.scatter): return Vector3()
+        return colour(bounce.scatter, roster, depth + 1) * bounce.attenuation
     else:
         unitDirection = ray.direction.unit()
         t = (unitDirection.y + 1.0) / 2
-        return  Vector3(1.0, 1.0, 1.0) * (1.0 - t) + Vector3(1.0, 0.5, 0.7) * t
+        return  Vector3(1.0, 1.0, 1.0) * (1.0 - t) + Vector3(0.5, 0.7, 1.0) * t
 
 
 
-width = 400
-height = 200
+width = 512
+height = 256
 samples = 2
 eye = Eye()
 pic = Picture(width, height)
 
 roster = Roster()
-roster.add(Sphere(Vector3(0.0, 0.0, -1.0), 0.5))
-roster.add(Sphere(Vector3(0.0, -100.5, -1.0), 100.0))
+brick = Lambert(Vector3(0.5, 0.5, 0.5))
+grass = Lambert(Vector3(0.8, 0.8, 0))
+mirror = Metal(Vector3(0.8, 0.65, 0.5))
+
+roster.add(Sphere(brick, Vector3(0.0, 0.0, -1.0), 0.5))
+roster.add(Sphere(grass, Vector3(0.0, -100.5, -1.0), 100.0))
+roster.add(Sphere(mirror, Vector3(1.0, 0.0, -1.0), 0.5))
+roster.add(Sphere(mirror, Vector3(-1.0, 0.0, -1.0), 0.5))
 
 for x in range(width):
     for y in range(height):
